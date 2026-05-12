@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The four choices — a Feedforward AI reflection</title>
+<link rel="stylesheet" href="assets/ff-tokens.css">
+<style>
+  /* ============================================================
+     The Four Choices — Feedforward AI
+     Editorial reflection tool. Tokens come from ff-tokens.css.
+     ============================================================ */
+
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg-2);
+    color: var(--fg-2);
+    min-height: 100vh;
+  }
+  * { box-sizing: border-box; }
+  button { font: inherit; cursor: pointer; color: inherit; }
+  ul { margin: 0; padding: 0 0 0 18px; }
+  li { margin-bottom: 10px; }
+  li:last-child { margin-bottom: 0; }
+
+  /* ---------- shell ---------- */
+  .shell { max-width: 880px; margin: 0 auto; padding: 0 32px 96px; }
+
+  .masthead {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 28px 0 24px; border-bottom: 1px solid var(--border-1);
+    margin-bottom: 64px;
+  }
+  .masthead-brand { display: flex; align-items: center; gap: 14px; }
+  .masthead-brand img { height: 28px; width: auto; display: block; }
+  .masthead-meta { display: flex; align-items: center; gap: 20px; }
+  .masthead-title {
+    font-family: var(--ff-font-supporting);
+    font-size: var(--fs-overline); letter-spacing: var(--tr-overline);
+    text-transform: uppercase; color: var(--fg-3); font-weight: var(--fw-medium);
+  }
+  .ghost-link {
+    background: none; border: none; padding: 0;
+    font-family: var(--ff-font-supporting);
+    font-size: var(--fs-overline); letter-spacing: var(--tr-overline);
+    text-transform: uppercase; color: var(--fg-3); font-weight: var(--fw-medium);
+    cursor: pointer; transition: color var(--dur-fast) var(--ease-out);
+  }
+  .ghost-link:hover { color: var(--ff-gold); }
+
+  /* ---------- screens ---------- */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fade var(--dur-slow) var(--ease-out); }
+  @keyframes fade {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- editorial typography helpers ---------- */
+  .eyebrow {
+    font-family: var(--ff-font-supporting);
+    font-size: var(--fs-overline); letter-spacing: var(--tr-overline);
+    text-transform: uppercase; color: var(--ff-gold);
+    font-weight: var(--fw-semibold); margin: 0 0 14px;
+  }
+  .eyebrow.muted { color: var(--fg-3); }
+  .display { font-family: var(--ff-font-display); color: var(--fg-1); font-weight: var(--fw-regular); letter-spacing: var(--tr-tight); }
+  .deck-h1 { font-size: 56px; line-height: 1.05; margin: 0 0 18px; }
+  .deck-h2 { font-size: 38px; line-height: 1.1;  margin: 0 0 8px; }
+  .deck-h3 { font-size: 26px; line-height: 1.2;  margin: 0 0 6px; }
+  .deck-h4 { font-size: 22px; line-height: 1.3;  margin: 0 0 4px; }
+  .lead { font-size: 19px; line-height: 1.6; color: var(--fg-2); }
+  .meta-italic { font-family: var(--ff-font-display); font-style: italic; color: var(--fg-3); font-size: 18px; }
+
+  @media (max-width: 640px) {
+    .deck-h1 { font-size: 40px; }
+    .deck-h2 { font-size: 30px; }
+    .shell { padding: 0 22px 64px; }
+    .masthead { margin-bottom: 40px; }
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ff-navy); color: var(--ff-cream);
+    border: none; padding: 14px 26px; border-radius: var(--radius-1);
+    font-family: var(--ff-font-supporting); font-size: 14px; font-weight: var(--fw-medium);
+    letter-spacing: 0.02em;
+    transition: background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .btn:hover { background: #143358; box-shadow: var(--shadow-1); }
+  .btn[disabled] { opacity: 0.35; cursor: not-allowed; }
+  .btn .arrow { transition: transform var(--dur-fast) var(--ease-out); }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  .btn-secondary {
+    background: transparent; color: var(--ff-navy);
+    border: 1px solid var(--border-2);
+    padding: 13px 22px; border-radius: var(--radius-1);
+    font-family: var(--ff-font-supporting); font-size: 14px; font-weight: var(--fw-medium);
+    letter-spacing: 0.02em;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+  }
+  .btn-secondary:hover { background: var(--state-hover); border-color: var(--ff-navy); }
+
+  .btn-text {
+    background: none; border: none; padding: 8px 0;
+    color: var(--ff-gold); font-family: var(--ff-font-supporting);
+    font-size: 14px; font-weight: var(--fw-medium); text-decoration: underline;
+    text-underline-offset: 4px; text-decoration-thickness: 1px;
+    cursor: pointer;
+  }
+  .btn-text:hover { color: var(--ff-navy); }
+
+  /* ============================================================
+     LANDING
+     ============================================================ */
+  .landing-mark {
+    display: block; margin-bottom: 40px;
+  }
+  .landing-mark svg {
+    width: 72px; height: 72px; color: var(--ff-navy);
+  }
+
+  .landing-intro p { font-size: 19px; line-height: 1.65; margin: 0 0 22px; color: var(--fg-2); max-width: 640px; }
+
+  .before-card {
+    margin: 48px 0 40px; padding: 28px 32px;
+    background: var(--ff-white);
+    border: 1px solid var(--border-1);
+    border-left: 3px solid var(--ff-gold);
+    border-radius: var(--radius-2);
+  }
+  .before-card h3 {
+    font-family: var(--ff-font-supporting); font-size: 12px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    font-weight: var(--fw-semibold); color: var(--ff-navy);
+    margin: 0 0 10px;
+  }
+  .before-card p { margin: 0; color: var(--fg-2); font-size: 16px; line-height: 1.6; }
+
+  .landing-actions { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+
+  /* ============================================================
+     DASHBOARD
+     ============================================================ */
+  .progress {
+    margin: 0 0 56px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .progress-rail {
+    flex: 1; height: 2px; background: var(--ff-light-gray); position: relative; overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute; left: 0; top: 0; height: 100%;
+    background: var(--ff-gold); transition: width var(--dur-slow) var(--ease-out);
+  }
+  .progress-text {
+    font-family: var(--ff-font-supporting); font-size: 12px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    color: var(--fg-3); font-weight: var(--fw-medium);
+    white-space: nowrap;
+  }
+
+  .card-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 0 0 56px;
+  }
+  @media (max-width: 720px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .ch-card {
+    background: var(--ff-white);
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-2);
+    padding: 28px;
+    text-align: left; width: 100%;
+    transition: border-color var(--dur-base) var(--ease-out),
+                box-shadow var(--dur-base) var(--ease-out),
+                transform var(--dur-base) var(--ease-out);
+    position: relative;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .ch-card:hover {
+    border-color: var(--ff-navy);
+    box-shadow: var(--shadow-1);
+    transform: translateY(-1px);
+  }
+  .ch-card .num {
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    color: var(--fg-3); font-weight: var(--fw-semibold);
+  }
+  .ch-card h3 { margin: 0; font-size: 26px; line-height: 1.15; font-family: var(--ff-font-display); color: var(--ff-navy); font-weight: var(--fw-regular); }
+  .ch-card .frame { color: var(--fg-3); font-style: italic; font-family: var(--ff-font-display); font-size: 15px; margin: 0; line-height: 1.4; }
+  .ch-progress { display: flex; gap: 6px; margin-top: 14px; }
+  .ch-progress span { flex: 1; height: 3px; background: var(--ff-light-gray); border-radius: 0; }
+  .ch-progress span.done { background: var(--ff-gold); }
+  .ch-status {
+    margin-top: 4px;
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    font-weight: var(--fw-medium); color: var(--fg-3);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ch-card.complete .ch-status { color: var(--ff-gold); }
+  .ch-card.complete { background: var(--ff-cream); border-color: var(--ff-gold-20); }
+
+  /* ============================================================
+     QUESTIONS
+     ============================================================ */
+  .q-head { margin-bottom: 56px; }
+  .q-head .frame { font-family: var(--ff-font-display); font-style: italic; color: var(--fg-3); font-size: 19px; margin: 0; }
+
+  .q-block {
+    margin: 0 0 48px; padding: 0 0 48px;
+    border-bottom: 1px solid var(--border-1);
+  }
+  .q-block:last-of-type { border-bottom: none; padding-bottom: 16px; }
+
+  .q-num {
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    color: var(--ff-gold); font-weight: var(--fw-semibold); margin-bottom: 14px;
+  }
+  .q-prompt {
+    font-family: var(--ff-font-display); font-size: 26px; line-height: 1.3;
+    color: var(--ff-navy); margin: 0 0 12px; letter-spacing: var(--tr-tight);
+    text-wrap: pretty;
+  }
+  .q-hint {
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    color: var(--fg-3); margin: 0 0 22px;
+  }
+
+  .opt {
+    display: block; margin-bottom: 10px; padding: 16px 20px 16px 52px;
+    background: var(--ff-white); border: 1px solid var(--border-1);
+    border-radius: var(--radius-1);
+    cursor: pointer; font-size: 16px; line-height: 1.5;
+    transition: border-color var(--dur-fast) var(--ease-out),
+                background var(--dur-fast) var(--ease-out);
+    position: relative;
+    color: var(--fg-2);
+  }
+  .opt:hover { border-color: var(--ff-navy); background: var(--ff-cream); }
+  .opt::before {
+    content: ""; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border: 1.5px solid var(--ff-light-gray);
+    background: var(--ff-white);
+    transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  }
+  .opt.single::before { border-radius: 50%; }
+  .opt.multi::before  { border-radius: 2px; }
+  .opt.selected {
+    border-color: var(--ff-navy);
+    background: var(--ff-cream);
+    box-shadow: inset 0 0 0 1px var(--ff-navy);
+  }
+  .opt.single.selected::before {
+    background: var(--ff-navy); border-color: var(--ff-navy);
+    box-shadow: inset 0 0 0 3px var(--ff-cream);
+  }
+  .opt.multi.selected::before {
+    background: var(--ff-gold); border-color: var(--ff-gold);
+  }
+  .opt.multi.selected::after {
+    content: ""; position: absolute; left: 25px; top: 50%;
+    width: 8px; height: 4px;
+    border-left: 2px solid var(--ff-white); border-bottom: 2px solid var(--ff-white);
+    transform: translateY(-70%) rotate(-45deg);
+  }
+
+  .q-actions {
+    margin-top: 48px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .q-actions .spacer { flex: 1; }
+
+  /* ============================================================
+     SUMMARY
+     ============================================================ */
+  .summary-intro {
+    font-size: 19px; line-height: 1.65; color: var(--fg-2);
+    margin: 0 0 64px; max-width: 680px; text-wrap: pretty;
+  }
+
+  .choice-section {
+    border-top: 1px solid var(--border-1);
+    padding-top: 48px; margin-top: 48px;
+  }
+  .choice-section .frame {
+    font-family: var(--ff-font-display); font-style: italic;
+    color: var(--fg-3); font-size: 18px; margin: 0 0 32px;
+  }
+
+  .summary-block {
+    margin: 0 0 20px; padding: 22px 26px;
+    border-radius: var(--radius-2);
+    border-left: 3px solid;
+  }
+  .summary-block h4 {
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    font-weight: var(--fw-semibold);
+    margin: 0 0 14px;
+  }
+  .summary-block p { margin: 0; font-size: 16px; color: var(--fg-2); }
+  .summary-block ul { padding-left: 20px; }
+  .summary-block li { font-size: 16px; color: var(--fg-2); line-height: 1.55; }
+  .summary-block li strong { color: var(--ff-navy); font-weight: var(--fw-semibold); }
+  .gloss { color: var(--fg-3); font-size: 14px; margin-top: 6px; line-height: 1.55; font-family: var(--ff-font-display); font-style: italic; }
+
+  .summary-block.confident {
+    background: #eef2ee;
+    border-color: #7d9d8d;
+  }
+  .summary-block.confident h4 { color: #3e5a4b; }
+
+  .summary-block.unknown {
+    background: var(--ff-gold-08);
+    border-color: var(--ff-gold);
+  }
+  .summary-block.unknown h4 { color: #8a5a26; }
+
+  .tensions-section {
+    margin-top: 72px; padding: 36px 40px;
+    background: var(--ff-navy); color: var(--ff-cream);
+    border-radius: var(--radius-2);
+  }
+  .tensions-section .eyebrow { color: var(--ff-gold); }
+  .tensions-section h2 {
+    font-family: var(--ff-font-display); color: var(--ff-cream);
+    font-size: 30px; margin: 0 0 24px; font-weight: var(--fw-regular);
+    letter-spacing: var(--tr-tight);
+  }
+  .tension-item {
+    margin-bottom: 22px; padding-bottom: 22px;
+    border-bottom: 1px solid rgba(253, 249, 244, 0.15);
+  }
+  .tension-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .tension-label {
+    font-family: var(--ff-font-supporting); font-size: 11px;
+    letter-spacing: var(--tr-overline); text-transform: uppercase;
+    color: var(--ff-gold); font-weight: var(--fw-semibold);
+    margin-bottom: 8px;
+  }
+  .tension-item p { margin: 0; color: var(--ff-cream); font-size: 16px; line-height: 1.6; opacity: 0.92; }
+
+  .conversations {
+    margin-top: 72px; padding-top: 48px; border-top: 1px solid var(--border-1);
+  }
+  .conversations > p { color: var(--fg-3); margin: 0 0 36px; max-width: 600px; }
+
+  .conversation {
+    display: grid; grid-template-columns: 60px 1fr;
+    gap: 24px; margin-bottom: 32px; padding-bottom: 32px;
+    border-bottom: 1px dashed var(--border-1);
+  }
+  .conversation:last-child { border-bottom: none; }
+  .conversation-num {
+    font-family: var(--ff-font-display); font-size: 44px;
+    color: var(--ff-gold); line-height: 1; padding-top: 2px;
+    font-weight: var(--fw-regular);
+  }
+  .conversation-body h3 {
+    margin: 0 0 8px; font-size: 22px; font-family: var(--ff-font-display);
+    color: var(--ff-navy); font-weight: var(--fw-regular); line-height: 1.25;
+  }
+  .conversation-body p { margin: 0; font-size: 16px; line-height: 1.6; color: var(--fg-2); }
+
+  .closing {
+    margin-top: 72px; padding: 40px 44px;
+    background: var(--ff-cream);
+    border: 1px solid var(--ff-gold-20);
+    border-radius: var(--radius-2);
+    position: relative;
+  }
+  .closing::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--ff-gold);
+  }
+  .closing p {
+    font-size: 18px; line-height: 1.65; color: var(--fg-2); margin: 0 0 16px;
+  }
+  .closing p:last-child { margin-bottom: 0; }
+  .closing strong { color: var(--ff-navy); font-weight: var(--fw-semibold); }
+
+  .footer-actions {
+    margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border-1);
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+  }
+
+  /* ============================================================
+     PRINT
+     ============================================================ */
+  @media print {
+    body { background: white; }
+    .shell { max-width: 100%; padding: 16px; }
+    .masthead, .footer-actions, .ghost-link, .btn, .btn-secondary, .btn-text { display: none !important; }
+    .screen { display: none !important; }
+    #screen-summary { display: block !important; }
+    .tensions-section { background: white; color: var(--ff-navy); border: 1px solid var(--ff-navy); }
+    .tensions-section h2, .tension-item p, .tension-label { color: var(--ff-navy) !important; }
+    .tension-item { border-bottom-color: var(--border-1) !important; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ============== MASTHEAD ============== -->
+  <header class="masthead">
+    <div class="masthead-brand">
+      <img src="assets/ff-lockup.png" alt="Feedforward AI">
+    </div>
+    <div class="masthead-meta">
+      <span class="masthead-title">A reflection · The four choices</span>
+      <button class="ghost-link" id="ghost-reset" style="display:none;">Start over</button>
+    </div>
+  </header>
+
+  <!-- ============== LANDING SCREEN ============== -->
+  <div class="screen active" id="screen-landing">
+    <div class="landing-mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="14" height="10" rx="2"></rect>
+        <rect x="2" y="27" width="14" height="10" rx="2"></rect>
+        <rect x="2" y="48" width="14" height="10" rx="2"></rect>
+        <rect x="25" y="17" width="14" height="10" rx="2"></rect>
+        <rect x="25" y="37" width="14" height="10" rx="2"></rect>
+        <rect x="48" y="27" width="14" height="10" rx="2" fill="#eaa059" stroke="#eaa059"></rect>
+        <path d="M16 11 C 21 11, 21 22, 25 22"></path>
+        <path d="M16 32 C 21 32, 21 22, 25 22"></path>
+        <path d="M16 32 C 21 32, 21 42, 25 42"></path>
+        <path d="M16 53 C 21 53, 21 42, 25 42"></path>
+        <path d="M39 22 C 44 22, 44 32, 48 32"></path>
+        <path d="M39 42 C 44 42, 44 32, 48 32"></path>
+      </svg>
+    </div>
+
+    <p class="eyebrow">A Feedforward AI reflection</p>
+    <h1 class="display deck-h1">The four choices</h1>
+    <p class="lead meta-italic" style="margin: 0 0 40px;">On the dimensions of your AI harness — and the decisions still being made on your behalf.</p>
+
+    <div class="landing-intro">
+      <p>Your company's AI is operating with a harness right now — a set of choices about what it knows, what it can do, how it works, and what stops it from causing harm. Those choices were made by someone. The question is whether you know who, and what they decided.</p>
+      <p>This short exercise walks you through twelve questions across the four dimensions. It is not a score. It will not tell you what your harness should be. It will tell you which decisions about your AI are worth focusing on next — based on what you say you don't yet know.</p>
+    </div>
+
+    <div class="before-card">
+      <h3>Before you start</h3>
+      <p>Answer from the perspective of your company today. "I don't know" is not a wrong answer — it is the most diagnostic one. Some questions allow more than one answer; the form will tell you. Roughly five minutes. Your answers save automatically.</p>
+    </div>
+
+    <div class="landing-actions">
+      <button class="btn" id="btn-start">Begin the reflection <span class="arrow">→</span></button>
+      <button class="btn-text" id="btn-resume" style="display: none;">Resume where I left off</button>
+    </div>
+  </div>
+
+  <!-- ============== DASHBOARD ============== -->
+  <div class="screen" id="screen-dashboard">
+    <p class="eyebrow muted">Four dimensions · twelve questions</p>
+    <h1 class="display deck-h1">Where the harness is shaped</h1>
+    <p class="lead meta-italic" style="margin: 0 0 48px;">Complete each section. Sections can be done in any order.</p>
+
+    <div class="progress">
+      <div class="progress-rail"><div class="progress-fill" id="overall-fill" style="width: 0%"></div></div>
+      <div class="progress-text" id="overall-text">0 of 12 answered</div>
+    </div>
+
+    <div class="card-grid" id="card-grid"></div>
+
+    <button class="btn" id="btn-show-summary" disabled>Show me my decisions to focus on <span class="arrow">→</span></button>
+  </div>
+
+  <!-- ============== QUESTION SCREEN ============== -->
+  <div class="screen" id="screen-questions">
+    <div class="q-head">
+      <p class="eyebrow" id="q-eyebrow">Choice 01 of 04</p>
+      <h1 class="display deck-h1" id="q-choice-title">Context</h1>
+      <p class="frame" id="q-choice-frame">What the agent knows when it starts working.</p>
+    </div>
+
+    <div id="q-blocks"></div>
+
+    <div class="q-actions">
+      <button class="btn-secondary" id="btn-prev-choice">← Previous</button>
+      <div class="spacer"></div>
+      <button class="btn-text" id="btn-dashboard-from-q">Back to dashboard</button>
+      <button class="btn" id="btn-next-choice">Next <span class="arrow">→</span></button>
+    </div>
+  </div>
+
+  <!-- ============== SUMMARY ============== -->
+  <div class="screen" id="screen-summary">
+    <p class="eyebrow">Your reflection</p>
+    <h1 class="display deck-h1">Decisions to focus on</h1>
+    <p class="lead meta-italic" style="margin: 0 0 48px;">A reflection on the four choices of harness design.</p>
+
+    <p class="summary-intro" id="summary-intro"></p>
+
+    <section class="choice-section">
+      <p class="eyebrow muted">Choice 01</p>
+      <h2 class="display deck-h2">Context</h2>
+      <p class="frame">What the agent knows when it starts working.</p>
+      <div class="summary-block confident"><h4>What you can answer</h4><div id="c1-confident-body"></div></div>
+      <div class="summary-block unknown"><h4>Decisions worth focusing on</h4><div id="c1-unknown-body"></div></div>
+    </section>
+
+    <section class="choice-section">
+      <p class="eyebrow muted">Choice 02</p>
+      <h2 class="display deck-h2">Tools</h2>
+      <p class="frame">What the agent can do, not just what it knows.</p>
+      <div class="summary-block confident"><h4>What you can answer</h4><div id="c2-confident-body"></div></div>
+      <div class="summary-block unknown"><h4>Decisions worth focusing on</h4><div id="c2-unknown-body"></div></div>
+    </section>
+
+    <section class="choice-section">
+      <p class="eyebrow muted">Choice 03</p>
+      <h2 class="display deck-h2">Loop &amp; orchestration</h2>
+      <p class="frame">How the agent works through a problem.</p>
+      <div class="summary-block confident"><h4>What you can answer</h4><div id="c3-confident-body"></div></div>
+      <div class="summary-block unknown"><h4>Decisions worth focusing on</h4><div id="c3-unknown-body"></div></div>
+    </section>
+
+    <section class="choice-section">
+      <p class="eyebrow muted">Choice 04</p>
+      <h2 class="display deck-h2">Security &amp; sandbox</h2>
+      <p class="frame">What stops the agent from doing harm.</p>
+      <div class="summary-block confident"><h4>What you can answer</h4><div id="c4-confident-body"></div></div>
+      <div class="summary-block unknown"><h4>Decisions worth focusing on</h4><div id="c4-unknown-body"></div></div>
+    </section>
+
+    <section class="tensions-section" id="tensions-section">
+      <p class="eyebrow">Across the four</p>
+      <h2>Tensions worth examining</h2>
+      <div id="tensions-body"></div>
+    </section>
+
+    <section class="conversations">
+      <p class="eyebrow muted">Next moves</p>
+      <h2 class="display deck-h2" style="margin-bottom: 12px;">Three conversations to have</h2>
+      <p>Specific topics worth raising — with your team, your vendor, your consultant, or yourself.</p>
+      <div id="conversations-body"></div>
+    </section>
+
+    <section class="closing" id="closing"></section>
+
+    <div class="footer-actions">
+      <button class="btn" onclick="window.print()">Print / save as PDF</button>
+      <button class="btn-secondary" id="btn-back-to-edit">← Edit my answers</button>
+      <button class="btn-text" id="btn-restart">Start over</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// QUESTION DEFINITIONS — content preserved verbatim from spec
+// ============================================================
+const CHOICES = [
+  {
+    id: 1, title: "Context", frame: "What the agent knows when it starts working.",
+    questions: [
+      {
+        id: "c1q1",
+        prompt: "Where does your AI's permanent instruction set live, and who can edit it?",
+        options: [
+          { id: "A", text: "We have a written document with a clear owner.",
+            kind: "confident", text_for_summary: "Your AI's permanent instructions are written down with a clear owner." },
+          { id: "B", text: "It lives in vendor settings I can't fully see.",
+            kind: "unknown", text_for_summary: "Where your AI's permanent instructions actually live, and who can edit them.",
+            gloss: "Instructions you can't see are choices being made for you by a vendor who has never met your company." },
+          { id: "C", text: "We use vendor defaults — no formal document.",
+            kind: "unknown", text_for_summary: "Whether your AI has any company-specific permanent instructions at all.",
+            gloss: "Operating on vendor defaults means your AI sounds like every other company's AI." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Where your AI's permanent instructions live, and who can edit them.",
+            gloss: "This is the first question to answer — every other choice in Context depends on it." }
+        ]
+      },
+      {
+        id: "c1q2", multi: true,
+        prompt: "When the AI reaches into your company's knowledge base, how does it find what it needs?",
+        options: [
+          { id: "A", text: "Pre-curated paths — someone wired specific docs to specific tasks.",
+            kind: "confident", text_for_summary: "Some retrieval is pre-curated — specific docs wired to specific tasks." },
+          { id: "B", text: "Vector search across our document store.",
+            kind: "confident", text_for_summary: "Vector search retrieves relevant chunks from your document store." },
+          { id: "C", text: "The agent navigates folder structures itself.",
+            kind: "confident", text_for_summary: "Your AI navigates a structured knowledge base via folder organization." },
+          { id: "D", text: "The AI doesn't have access to our knowledge base.", exclusive: true,
+            kind: "confident", text_for_summary: "Your AI does not access internal knowledge — a deliberate scope decision." },
+          { id: "E", text: "I don't know.", exclusive: true,
+            kind: "unknown", text_for_summary: "How your AI retrieves information from your knowledge base.",
+            gloss: "Each retrieval method has different failure modes. Not knowing which one is in use means not knowing how it fails." }
+        ]
+      },
+      {
+        id: "c1q3",
+        prompt: "Has anyone written down — in plain English — what makes your company's work distinctive? The taste, the standards, the lines you'd never cross?",
+        options: [
+          { id: "A", text: "Yes, and it's in the AI's context.",
+            kind: "confident", text_for_summary: "Your distinctive taste and standards are captured and loaded into AI sessions." },
+          { id: "B", text: "Yes, but it's not in the AI's context.",
+            kind: "unknown", text_for_summary: "Why your distinctive standards have been captured but not loaded into the AI.",
+            gloss: "The work of capture has been done. The work of installation has not. Captured but not loaded is invisible to the model." },
+          { id: "C", text: "No.",
+            kind: "unknown", text_for_summary: "Whether your distinctive standards and taste have ever been written down.",
+            gloss: "If not, your AI's output will be competent and generic — indistinguishable from any competitor's." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Whether your distinctive standards have been captured anywhere.",
+            gloss: "This is usually a senior-person conversation — the kind of knowledge that lives in heads, not documents." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2, title: "Tools", frame: "What the agent can do, not just what it knows.",
+    questions: [
+      {
+        id: "c2q1",
+        prompt: "Can you list every action your AI is currently capable of taking?",
+        options: [
+          { id: "A", text: "Yes, I've seen the full inventory.",
+            kind: "confident", text_for_summary: "You have visibility into the full tool inventory." },
+          { id: "B", text: "I have a general sense.",
+            kind: "unknown", text_for_summary: "A complete inventory of tools your AI can call.",
+            gloss: "A general sense is not an inventory. You can't govern what you can't list." },
+          { id: "C", text: "No.",
+            kind: "unknown", text_for_summary: "What your AI is actually capable of doing.",
+            gloss: "Tool surface is risk surface. Unmapped tools are unmanaged risk." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "What your AI is actually capable of doing.",
+            gloss: "Ask for an inventory. If the vendor can't produce one, that itself is the answer." }
+        ]
+      },
+      {
+        id: "c2q2",
+        prompt: "Who decides which employees or roles get access to which tools?",
+        options: [
+          { id: "A", text: "We have a formal access policy.",
+            kind: "confident", text_for_summary: "A formal access policy governs who gets which tools." },
+          { id: "B", text: "The vendor's defaults are our policy.",
+            kind: "unknown", text_for_summary: "Whether the vendor's defaults actually fit your organization.",
+            gloss: "Vendor defaults are designed for an average customer. You are not the average customer." },
+          { id: "C", text: "It's ad-hoc — different teams have experimented differently.",
+            kind: "unknown", text_for_summary: "How to formalize the access patterns your teams have settled into.",
+            gloss: "Ad-hoc is a stage, not a destination. The longer it lasts, the harder it becomes to formalize." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Who has authority to grant or revoke tool access.",
+            gloss: "If no one knows, no one is accountable when the wrong access gets granted." }
+        ]
+      },
+      {
+        id: "c2q3",
+        prompt: "Does your AI have access to any tools that only your company has — internal systems, proprietary data, custom workflows?",
+        options: [
+          { id: "A", text: "Yes, several.",
+            kind: "confident", text_for_summary: "Several internal tools are wired into your AI — the foundation of a real moat." },
+          { id: "B", text: "One or two.",
+            kind: "confident", text_for_summary: "You've connected a few internal tools to your AI." },
+          { id: "C", text: "None — we use off-the-shelf tools only.",
+            kind: "unknown", text_for_summary: "Why your AI has no access to tools unique to your company.",
+            gloss: "Off-the-shelf agents are roughly equivalent across vendors. Your moat lives in internal tools no competitor can buy." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Whether your AI has access to any tools unique to your company.",
+            gloss: "If you don't know what makes your AI distinct from a competitor's, the answer might be that it isn't." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 3, title: "Loop & orchestration", frame: "How the agent works through a problem.",
+    questions: [
+      {
+        id: "c3q1",
+        prompt: "For a typical AI task in your company, can someone show you the full trace — every model call, every tool invocation, every decision?",
+        options: [
+          { id: "A", text: "Yes, I've seen a trace.",
+            kind: "confident", text_for_summary: "You've seen the trace of a typical task — you know what your system actually does." },
+          { id: "B", text: "I have a general understanding, but haven't seen a trace.",
+            kind: "unknown", text_for_summary: "What the trace of a typical task actually shows.",
+            gloss: "General understanding is not the same as observed behavior. The trace usually reveals surprises about cost, quality, and what the AI is actually doing." },
+          { id: "C", text: "No.",
+            kind: "unknown", text_for_summary: "What your AI is actually doing during a typical task.",
+            gloss: "If no one can show you a trace, no one knows what your system does — including what it costs." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Whether anyone in your company can produce a trace of a typical task.",
+            gloss: "Ask for one. The answer to whether someone can produce it on demand is itself diagnostic." }
+        ]
+      },
+      {
+        id: "c3q2",
+        prompt: "Are different kinds of decisions matched to different levels of AI intensity — cost, models, agent counts?",
+        options: [
+          { id: "A", text: "Yes, deliberately.",
+            kind: "confident", text_for_summary: "Different decisions are matched to different levels of AI intensity by design." },
+          { id: "B", text: "Somewhat, organically.",
+            kind: "unknown", text_for_summary: "How to make the right matching deliberate, not accidental.",
+            gloss: "You've felt the principle but haven't operationalized it. The next move is making this an explicit policy, not an emergent one." },
+          { id: "C", text: "No — everything runs through the same setup.",
+            kind: "unknown", text_for_summary: "Why every decision runs through the same AI configuration.",
+            gloss: "A $400M acquisition deserves a different harness than categorizing customer emails. Running both the same way means overspending on the easy and underinvesting on the hard." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Whether AI intensity is matched to decision value in your company.",
+            gloss: "This is the executive-level harness question. Worth pulling someone in to walk you through how it actually works today." }
+        ]
+      },
+      {
+        id: "c3q3", multi: true,
+        prompt: "When your AI completes a task, who or what checks the work before it's used?",
+        options: [
+          { id: "A", text: "A separate AI agent — with no memory of the work — reviews the output.",
+            kind: "confident", text_for_summary: "A fresh AI reviewer with no memory of the prior attempt checks the work — the highest-leverage quality pattern in current practice." },
+          { id: "B", text: "A human reviews before any action is taken.",
+            kind: "confident", text_for_summary: "A human reviewer approves the work before action is taken." },
+          { id: "C", text: "Deterministic checks — tests, schema validation, threshold gates.",
+            kind: "confident", text_for_summary: "Deterministic checks validate the work before use." },
+          { id: "D", text: "Nothing — the output is used directly.", exclusive: true,
+            kind: "unknown", text_for_summary: "Whether anything checks your AI's work before it's used.",
+            gloss: "Unchecked output is the single most common quality leak in current AI deployments." },
+          { id: "E", text: "I don't know.", exclusive: true,
+            kind: "unknown", text_for_summary: "What review or check happens before AI output is used.",
+            gloss: "Models are unreliable at grading their own output. If a model is reviewing its own work, that's a problem worth surfacing." }
+        ]
+      }
+    ]
+  },
+  {
+    id: 4, title: "Security & sandbox", frame: "What stops the agent from doing harm.",
+    questions: [
+      {
+        id: "c4q1", multi: true,
+        prompt: "If a poisoned document or webpage tried to manipulate your AI, what specifically would stop it?",
+        options: [
+          { id: "A", text: "An isolated execution environment — VM, container, or OS sandbox.",
+            kind: "confident", text_for_summary: "An isolated execution environment limits what a compromised agent can touch." },
+          { id: "B", text: "A network allowlist that's been deliberately reviewed.",
+            kind: "confident", text_for_summary: "A deliberately-set network allowlist limits exfiltration paths." },
+          { id: "C", text: "A permission gate that requires human approval for irreversible actions.",
+            kind: "confident", text_for_summary: "A permission gate requires human approval for irreversible actions." },
+          { id: "D", text: "A full audit trail of agent actions.",
+            kind: "confident", text_for_summary: "Audit logging captures consequential agent actions." },
+          { id: "E", text: "Input filtering or prompt-injection detection.",
+            kind: "confident", text_for_summary: "Input filtering or injection detection sits in front of the model." },
+          { id: "F", text: "We rely on the vendor's defaults — these layers haven't been individually configured by us.", exclusive: true,
+            kind: "unknown", text_for_summary: "What the vendor's default defenses actually are, in concrete terms.",
+            gloss: "Vendor defaults vary wildly. The Antigravity exfiltration of November 2025 happened on a vendor default that no customer had reviewed." },
+          { id: "G", text: "I don't know.", exclusive: true,
+            kind: "unknown", text_for_summary: "What would actually stop a prompt-injection attack against your AI.",
+            gloss: "This is the single most important security question in current AI. Worth getting a real answer." }
+        ]
+      },
+      {
+        id: "c4q2",
+        prompt: "When your AI takes an action with real-world consequences, what gets logged?",
+        options: [
+          { id: "A", text: "Full audit trail — model calls, tool invocations, decisions, retained for review.",
+            kind: "confident", text_for_summary: "Full audit trail of AI actions, with retention for review." },
+          { id: "B", text: "Some events get logged.",
+            kind: "unknown", text_for_summary: "What 'some events' actually means in practice.",
+            gloss: "Partial logging is roughly equivalent to no audit trail when something goes wrong and you need to reconstruct it." },
+          { id: "C", text: "Nothing is logged.",
+            kind: "unknown", text_for_summary: "Why your AI's consequential actions go unlogged.",
+            gloss: "Your CISO and your auditor both need this. So will legal, the first time something goes wrong." },
+          { id: "D", text: "I don't know what's logged.",
+            kind: "unknown", text_for_summary: "What your AI logs when it takes consequential action.",
+            gloss: "Logs are the foundation of every recovery story. Worth a single meeting to find out." }
+        ]
+      },
+      {
+        id: "c4q3",
+        prompt: "Has anyone tested what your AI would do in a worst-case scenario?",
+        options: [
+          { id: "A", text: "Yes, formally — red-team exercises against the live system.",
+            kind: "confident", text_for_summary: "You've formally red-teamed the AI against realistic attacks." },
+          { id: "B", text: "We've discussed scenarios but haven't tested them.",
+            kind: "unknown", text_for_summary: "Whether your defenses actually hold up under real attack.",
+            gloss: "Discussion without test is the most common form of false security in this space." },
+          { id: "C", text: "No.",
+            kind: "unknown", text_for_summary: "How your AI would actually behave under attack.",
+            gloss: "Untested defenses are theatrical defenses. The cheapest, fastest security upgrade available right now is a single half-day of red-teaming." },
+          { id: "D", text: "I don't know.",
+            kind: "unknown", text_for_summary: "Whether your AI has ever been tested under realistic attack conditions.",
+            gloss: "Worth finding out — the answer is usually no, and the fix is unusually cheap." }
+        ]
+      }
+    ]
+  }
+];
+
+function has(answers, qid, optId) {
+  const v = answers[qid];
+  if (!v) return false;
+  return Array.isArray(v) ? v.includes(optId) : v === optId;
+}
+function hasAny(answers, qid, optIds) { return optIds.some(id => has(answers, qid, id)); }
+function countSelected(answers, qid, optIds) { return optIds.filter(id => has(answers, qid, id)).length; }
+
+const TENSIONS = [
+  { id: "captured-not-loaded",
+    match: a => has(a, "c1q3", "B"),
+    label: "Capture without installation",
+    text: "You've captured what makes your company distinctive — but said it isn't in the AI's permanent context. The work of capture has been done. The work of installation has not." },
+  { id: "internal-tools-no-policy",
+    match: a => hasAny(a, "c2q3", ["A","B"]) && hasAny(a, "c2q2", ["B","C","D"]),
+    label: "Capability ahead of governance",
+    text: "You have internal tools wired in but no formal policy on who gets access to them. The capability is ahead of the governance. That's how accidents happen." },
+  { id: "discussed-not-tested",
+    match: a => has(a, "c4q3", "B"),
+    label: "Discussion without test",
+    text: "You've discussed worst-case scenarios but haven't tested them. Discussion without test is the most common form of false security in this space." },
+  { id: "thin-defense",
+    match: a => {
+      const specificLayers = countSelected(a, "c4q1", ["A","B","C","D","E"]);
+      const vendorOrUnknown = hasAny(a, "c4q1", ["F","G"]);
+      return !vendorOrUnknown && specificLayers > 0 && specificLayers < 3;
+    },
+    label: "Thin defense",
+    text: "You named one or two specific defenses. Every published AI security incident has defeated single-mechanism defenses. The pattern that holds up under attack is layered — at least three independent mechanisms working together." },
+  { id: "stacked-untested",
+    match: a => {
+      const specificLayers = countSelected(a, "c4q1", ["A","B","C","D","E"]);
+      return specificLayers >= 3 && hasAny(a, "c4q3", ["B","C","D"]);
+    },
+    label: "Layered defenses, untested",
+    text: "Your defenses look strong on paper but haven't been tested under actual attack. Defenses you haven't tested are defenses you don't actually know you have." },
+  { id: "tools-without-inventory",
+    match: a => hasAny(a, "c2q1", ["B","C","D"]) && hasAny(a, "c2q2", ["B","C","D"]),
+    label: "Tools without inventory or policy",
+    text: "You can't list your AI's tools and don't have a formal policy on who gets access. Either gap is serious; together they mean nobody is governing the tool surface." },
+  { id: "no-review-no-logs",
+    match: a => hasAny(a, "c3q3", ["D","E"]) && hasAny(a, "c4q2", ["B","C","D"]),
+    label: "No review and no audit trail",
+    text: "Nothing checks the AI's work, and consequential actions aren't fully logged. If a bad output goes out, you have no quality gate to catch it and no audit trail to investigate it." },
+  { id: "all-vendor-defaults",
+    match: a => {
+      let defaultish = 0;
+      if (hasAny(a, "c1q1", ["B","C","D"])) defaultish++;
+      if (hasAny(a, "c2q2", ["B","C","D"])) defaultish++;
+      if (hasAny(a, "c4q1", ["F","G"])) defaultish++;
+      return defaultish >= 2;
+    },
+    label: "Vendor making your decisions",
+    text: "Across several dimensions, the vendor's defaults are doing the decision-making. The choices are still being made — just not by you, and possibly not for you." },
+  { id: "filter-only-defense",
+    match: a => {
+      const layers = ["A","B","C","D","E"].filter(id => has(a, "c4q1", id));
+      return layers.length === 1 && layers[0] === "E";
+    },
+    label: "Filtering as sole defense",
+    text: "Input filtering is your only named defense. It is also the most commonly bypassed mechanism in published incidents. Filtering catches what attackers have already tried; it doesn't catch what they invent tomorrow." }
+];
+
+const CONVERSATIONS = [
+  { id: "see-the-trace", trigger: a => hasAny(a, "c3q1", ["B","C","D"]),
+    title: "Ask to see a trace.",
+    body: "Pick a real recent task. Have someone walk you through what the AI did — every model call, every tool, every decision. The single fastest way to know whether your team understands their own system." },
+  { id: "what-vendor-decided", trigger: a => hasAny(a, "c1q1", ["B","C"]) || hasAny(a, "c4q1", ["F"]),
+    title: "What did the vendor actually decide for us?",
+    body: "Get someone — internal or external — to walk you through the permanent context, tool inventory, and security defenses as they currently stand. You cannot evaluate what you have not seen." },
+  { id: "capture-distinctive", trigger: a => hasAny(a, "c1q3", ["C","D"]),
+    title: "What makes our work distinctive?",
+    body: "Spend one session capturing in plain English what your company does differently. Tone, standards, customer assumptions, lines you'd never cross. This is the input to permanent context — and the one thing no vendor can build for you." },
+  { id: "install-distinctive", trigger: a => has(a, "c1q3", "B"),
+    title: "Why isn't our distinctive work in the AI's context?",
+    body: "You've captured it. Find out what's blocking it from being loaded into sessions. Often it's a permissions question, sometimes a vendor configuration limit, occasionally just an oversight. All three are solvable in a meeting." },
+  { id: "fresh-reviewer", trigger: a => hasAny(a, "c3q3", ["D","E"]),
+    title: "Who is reviewing the AI's work, and is it a fresh reviewer?",
+    body: "If the same model that produces work also reviews it, you have a quality problem you can't see. A separate reviewer — even just a second pass with a clean prompt — typically catches 30–40% of issues the producing model missed." },
+  { id: "red-team", trigger: a => hasAny(a, "c4q3", ["B","C","D"]),
+    title: "What is our actual test of worst case?",
+    body: "Pick one realistic attack — a prompt injection from a fetched webpage, a tool that gets misused, a runaway cost. Schedule a half day. Run it against your live system. Document what held and what didn't." },
+  { id: "intensity-matching", trigger: a => hasAny(a, "c3q2", ["B","C","D"]),
+    title: "How do we match AI intensity to decision value?",
+    body: "Sit with your team and identify three decision types: ones worth tens of thousands in AI investment, ones worth pennies, and the messy middle. That conversation alone tends to reframe how a company budgets for AI." },
+  { id: "internal-tools", trigger: a => hasAny(a, "c2q3", ["C","D"]),
+    title: "What internal tools could become our moat?",
+    body: "Off-the-shelf agents are roughly equivalent across vendors. Your advantage lives in connecting your AI to systems no competitor can use — pricing engines, customer history, proprietary research. Identify the top three candidates and ask what it would take to wire them in." },
+  { id: "tool-inventory", trigger: a => hasAny(a, "c2q1", ["B","C","D"]),
+    title: "Produce a full tool inventory.",
+    body: "Ask for a written list of every action your AI can take, with the prompt-level description for each. If it can't be produced on demand, that itself is the most important finding." },
+  { id: "audit-trail", trigger: a => hasAny(a, "c4q2", ["B","C","D"]),
+    title: "What does our audit trail actually capture?",
+    body: "Walk through a recent consequential AI action. What got logged? Who can see the logs? How long are they kept? Your CISO needs this. Your auditor will need this. Better to know now than at 3 a.m." },
+  { id: "stack-defense", trigger: a => {
+      const layers = countSelected(a, "c4q1", ["A","B","C","D","E"]);
+      const fallback = hasAny(a, "c4q1", ["F","G"]);
+      return (layers > 0 && layers < 3) || fallback;
+    },
+    title: "Add the next layer of defense.",
+    body: "Defense in depth is the rule. Pick the two layers you don't have — most commonly a deliberate network allowlist and a permission gate on irreversible actions — and find out what it would take to add them." }
+];
+
+function getIntro(a, unknownTotal) {
+  if (unknownTotal >= 9) return "This isn't a score. It's a summary of the decisions about your AI you said you can't yet answer with confidence — and a short list of conversations worth having based on what surfaced. Your answers suggest a company that has begun adopting AI but hasn't yet made deliberate choices about its harness. That is the most common pattern right now. It's also the riskiest, because the choices are still being made — just by someone else.";
+  if (unknownTotal >= 4) return "This isn't a score. It's a summary of the decisions about your AI you said you can't yet answer with confidence — and a short list of conversations worth having based on what surfaced. Your answers suggest a company in active development: deliberate choices in some areas, real gaps in others. The risk at this stage is uneven maturity — a strong choice on one dimension can be undone by a weak choice on another.";
+  if (unknownTotal >= 1) return "This isn't a score. It's a summary of the decisions about your AI you said you can't yet answer with confidence — and a short list of conversations worth having based on what surfaced. Your answers suggest a company that has thought carefully about its harness. Most of the structural choices have been made deliberately. The remaining gaps are specific and worth closing.";
+  return "This isn't a score. It's a summary of the decisions about your AI you have answered with confidence — and a short list of conversations worth having to keep going. Your answers suggest a company that has thought through the four choices in genuine detail. The work now is staying ahead of a moving target.";
+}
+function getClosing(a, unknownTotal) {
+  if (unknownTotal >= 9) return `<p>You don't need to become a harness engineer. You need to know that someone is making these decisions on your behalf, and you need to know enough to ask the right people the right questions.</p><p><strong>The fastest path forward is to make these unknowns visible to the people who can answer them.</strong> That is the conversation this document is designed to start.</p>`;
+  if (unknownTotal >= 4) return `<p>You've made deliberate choices in several places and have the foundation of a real harness. The risk at your stage is letting the strong choices give you false confidence about the weak ones.</p><p><strong>The next move is closing specific gaps — not building everything from scratch.</strong> The conversations above are designed to do exactly that.</p>`;
+  if (unknownTotal >= 1) return `<p>You've made the structural choices that most companies haven't even named. The remaining work is operational, not foundational — and the discipline of getting from a thoughtful harness to a battle-tested one is what separates real capability from the appearance of it.</p><p><strong>You don't need a better harness. You need to know what yours actually does under stress.</strong></p>`;
+  return `<p>You can answer every question in this exercise. That puts you in the smallest minority of companies right now.</p><p><strong>The work from here is keeping the answers current.</strong> Every model release reshuffles the choices, and the harness that was right last quarter may not be right next quarter. Treat this as a living document, not a checklist.</p>`;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+const STORAGE_KEY = "ff-harness-reflection-v1";
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { answers: {}, currentChoice: 1 };
+}
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+function resetState() { state = { answers: {}, currentChoice: 1 }; saveState(); }
+function isAnswered(qid) {
+  const v = state.answers[qid];
+  return Array.isArray(v) && v.length > 0;
+}
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  // Show ghost reset only when not on landing
+  document.getElementById("ghost-reset").style.display = id === "screen-landing" ? "none" : "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ============================================================
+// LANDING
+// ============================================================
+function initLanding() {
+  const hasProgress = Object.keys(state.answers).length > 0;
+  document.getElementById("btn-resume").style.display = hasProgress ? "inline-block" : "none";
+  document.getElementById("btn-start").innerHTML = hasProgress
+    ? `Start over <span class="arrow">→</span>`
+    : `Begin the reflection <span class="arrow">→</span>`;
+  document.getElementById("btn-start").onclick = () => {
+    if (hasProgress) {
+      if (confirm("Start over? This will erase your current answers.")) {
+        resetState(); renderDashboard(); show("screen-dashboard");
+      }
+    } else {
+      renderDashboard(); show("screen-dashboard");
+    }
+  };
+  document.getElementById("btn-resume").onclick = () => {
+    renderDashboard(); show("screen-dashboard");
+  };
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const grid = document.getElementById("card-grid");
+  grid.innerHTML = "";
+  let answered = 0;
+  CHOICES.forEach(c => {
+    const total = c.questions.length;
+    const done = c.questions.filter(q => isAnswered(q.id)).length;
+    answered += done;
+    const dots = c.questions.map(q => `<span class="${isAnswered(q.id) ? 'done' : ''}"></span>`).join("");
+    const status = done === total ? "Complete" : done === 0 ? "Not started" : `${done} of ${total} answered`;
+    const card = document.createElement("button");
+    card.className = "ch-card" + (done === total ? " complete" : "");
+    const idStr = String(c.id).padStart(2, "0");
+    card.innerHTML = `
+      <div class="num">Choice ${idStr}</div>
+      <h3>${c.title}</h3>
+      <p class="frame">${c.frame}</p>
+      <div class="ch-progress">${dots}</div>
+      <div class="ch-status"><span>${status}</span><span>${done}/${total}</span></div>`;
+    card.onclick = () => {
+      state.currentChoice = c.id; saveState();
+      renderQuestionScreen(c.id); show("screen-questions");
+    };
+    grid.appendChild(card);
+  });
+  const pct = Math.round((answered / 12) * 100);
+  document.getElementById("overall-fill").style.width = pct + "%";
+  document.getElementById("overall-text").textContent = `${answered} of 12 answered`;
+  const btn = document.getElementById("btn-show-summary");
+  btn.disabled = answered !== 12;
+}
+
+document.getElementById("btn-show-summary").onclick = () => {
+  renderSummary(); show("screen-summary");
+};
+
+document.getElementById("ghost-reset").onclick = () => {
+  if (confirm("Start over? This will erase your current answers.")) {
+    resetState(); initLanding(); show("screen-landing");
+  }
+};
+
+// ============================================================
+// QUESTION SCREEN
+// ============================================================
+function renderQuestionScreen(choiceId) {
+  const c = CHOICES.find(x => x.id === choiceId);
+  const idStr = String(c.id).padStart(2, "0");
+  document.getElementById("q-eyebrow").textContent = `Choice ${idStr} of 04`;
+  document.getElementById("q-choice-title").textContent = c.title;
+  document.getElementById("q-choice-frame").textContent = c.frame;
+  const blocksEl = document.getElementById("q-blocks");
+  blocksEl.innerHTML = "";
+  c.questions.forEach((q, i) => {
+    const block = document.createElement("div");
+    block.className = "q-block";
+    const multi = !!q.multi;
+    const cls = multi ? "multi" : "single";
+    const opts = q.options.map(opt => {
+      const sel = has(state.answers, q.id, opt.id) ? " selected" : "";
+      return `<label class="opt ${cls}${sel}" data-q="${q.id}" data-opt="${opt.id}" data-exclusive="${opt.exclusive ? '1' : '0'}">
+        ${opt.text}
+      </label>`;
+    }).join("");
+    const hint = multi ? `<div class="q-hint">Select all that apply</div>` : "";
+    const qNumStr = String(i + 1).padStart(2, "0");
+    block.innerHTML = `
+      <div class="q-num">Question ${qNumStr} · of ${String(c.questions.length).padStart(2, "0")}</div>
+      <div class="q-prompt">${q.prompt}</div>
+      ${hint}
+      ${opts}`;
+    blocksEl.appendChild(block);
+  });
+
+  blocksEl.querySelectorAll(".opt").forEach(el => {
+    el.onclick = (e) => {
+      e.preventDefault();
+      const qid = el.dataset.q;
+      const optid = el.dataset.opt;
+      const isMulti = el.classList.contains("multi");
+      const isExclusive = el.dataset.exclusive === "1";
+      const cur = Array.isArray(state.answers[qid]) ? [...state.answers[qid]] : (state.answers[qid] ? [state.answers[qid]] : []);
+      if (!isMulti) {
+        state.answers[qid] = [optid];
+      } else {
+        if (isExclusive) {
+          state.answers[qid] = [optid];
+        } else {
+          const question = c.questions.find(x => x.id === qid);
+          const exclusiveIds = question.options.filter(o => o.exclusive).map(o => o.id);
+          let next = cur.filter(id => !exclusiveIds.includes(id));
+          if (next.includes(optid)) {
+            next = next.filter(id => id !== optid);
+          } else {
+            next.push(optid);
+          }
+          state.answers[qid] = next;
+        }
+      }
+      saveState();
+      const parent = el.parentElement;
+      parent.querySelectorAll(".opt").forEach(o => {
+        if (has(state.answers, qid, o.dataset.opt)) o.classList.add("selected");
+        else o.classList.remove("selected");
+      });
+    };
+  });
+
+  document.getElementById("btn-prev-choice").style.visibility = choiceId === 1 ? "hidden" : "visible";
+  document.getElementById("btn-next-choice").innerHTML = choiceId === 4
+    ? `Done <span class="arrow">→</span>`
+    : `Next <span class="arrow">→</span>`;
+}
+document.getElementById("btn-prev-choice").onclick = () => {
+  if (state.currentChoice > 1) {
+    state.currentChoice--; saveState(); renderQuestionScreen(state.currentChoice);
+  }
+};
+document.getElementById("btn-next-choice").onclick = () => {
+  if (state.currentChoice < 4) {
+    state.currentChoice++; saveState(); renderQuestionScreen(state.currentChoice);
+  } else {
+    renderDashboard(); show("screen-dashboard");
+  }
+};
+document.getElementById("btn-dashboard-from-q").onclick = () => {
+  renderDashboard(); show("screen-dashboard");
+};
+
+// ============================================================
+// SUMMARY
+// ============================================================
+function renderSummary() {
+  const a = state.answers;
+  let unknownTotal = 0;
+
+  CHOICES.forEach(c => {
+    const confidents = [];
+    const unknowns = [];
+    c.questions.forEach(q => {
+      const ans = a[q.id];
+      if (!ans || (Array.isArray(ans) && ans.length === 0)) return;
+      const selected = Array.isArray(ans) ? ans : [ans];
+      selected.forEach(optId => {
+        const opt = q.options.find(o => o.id === optId);
+        if (!opt) return;
+        if (opt.kind === "confident") {
+          confidents.push(`<li>${opt.text_for_summary}</li>`);
+        } else {
+          unknownTotal++;
+          const gloss = opt.gloss ? `<div class="gloss">${opt.gloss}</div>` : "";
+          unknowns.push(`<li><strong>${opt.text_for_summary}</strong>${gloss}</li>`);
+        }
+      });
+    });
+    document.getElementById(`c${c.id}-confident-body`).innerHTML =
+      confidents.length ? `<ul>${confidents.join("")}</ul>` : "<p>None marked confidently.</p>";
+    document.getElementById(`c${c.id}-unknown-body`).innerHTML =
+      unknowns.length ? `<ul>${unknowns.join("")}</ul>` : "<p>None.</p>";
+  });
+
+  document.getElementById("summary-intro").textContent = getIntro(a, unknownTotal);
+
+  const matchedTensions = TENSIONS.filter(t => t.match(a));
+  const tensionsBody = document.getElementById("tensions-body");
+  const tensionsSection = document.getElementById("tensions-section");
+  if (matchedTensions.length === 0) {
+    tensionsSection.style.display = "none";
+  } else {
+    tensionsSection.style.display = "block";
+    tensionsBody.innerHTML = matchedTensions.map(t =>
+      `<div class="tension-item"><div class="tension-label">${t.label}</div><p>${t.text}</p></div>`).join("");
+  }
+
+  const matchedConvs = CONVERSATIONS.filter(cv => cv.trigger(a)).slice(0, 3);
+  const convsBody = document.getElementById("conversations-body");
+  if (matchedConvs.length === 0) {
+    convsBody.innerHTML = `<div class="conversation"><div class="conversation-num">1</div><div class="conversation-body"><h3>Keep the answers current.</h3><p>Every model release reshuffles the choices. Schedule a quarterly walk-through of your harness — even a 30-minute review catches the drift before it becomes a problem.</p></div></div>`;
+  } else {
+    convsBody.innerHTML = matchedConvs.map((cv, i) => `
+      <div class="conversation">
+        <div class="conversation-num">${String(i + 1).padStart(2, "0")}</div>
+        <div class="conversation-body"><h3>${cv.title}</h3><p>${cv.body}</p></div>
+      </div>`).join("");
+  }
+
+  document.getElementById("closing").innerHTML = getClosing(a, unknownTotal);
+}
+
+document.getElementById("btn-back-to-edit").onclick = () => {
+  renderDashboard(); show("screen-dashboard");
+};
+document.getElementById("btn-restart").onclick = () => {
+  if (confirm("Start over? This will erase your current answers.")) {
+    resetState(); initLanding(); show("screen-landing");
+  }
+};
+
+initLanding();
+</script>
+</body>
+</html>
